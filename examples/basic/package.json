@@ -1,0 +1,20 @@
+{
+  "name": "@shimmy/example-basic",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@shimmy/runtime": "workspace:*",
+    "@shimmy/spa": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "vite": "^5.1.4",
+    "vite-plugin-shimmy-spa": "workspace:*"
+  }
+} 

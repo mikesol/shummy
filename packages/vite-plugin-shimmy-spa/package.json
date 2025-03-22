@@ -1,0 +1,22 @@
+{
+  "name": "vite-plugin-shimmy-spa",
+  "version": "0.1.0",
+  "description": "Vite plugin for Shimmy SPA development",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest",
+    "lint": "eslint src --ext .ts"
+  },
+  "dependencies": {
+    "@shimmy/spa": "workspace:*",
+    "vite": "^5.1.4"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.2",
+    "vitest": "^1.3.1"
+  }
+} 
