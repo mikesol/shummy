@@ -13,7 +13,7 @@
   },
   "scripts": {
     "build": "tsup src/index.ts",
-    "test": "vitest run",
+    "test": "vitest run --reporter verbose",
     "lint": "eslint src --ext .ts",
     "clean": "rimraf dist"
   },
@@ -28,5 +28,8 @@
   },
   "vitest": {
     "environment": "happy-dom"
+  },
+  "dependencies": {
+    "immer": "^10.0.3"
   }
-} 
+}

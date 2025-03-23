@@ -1,5 +1,5 @@
 import { Runtime, RuntimeOptions, Message } from './types'
-import { handleStaticTemplate } from './static'
+import { initializeTemplate } from './initialization'
 
 export class ShimmyRuntime implements Runtime {
   private callCount: number = 1
@@ -11,7 +11,7 @@ export class ShimmyRuntime implements Runtime {
 
   handleMessage(message: Message): void {
     if (message.type === 'template') {
-      handleStaticTemplate(message.template, this.options, document, this.callCount++)
+      initializeTemplate(message.template, this.options, document, this.callCount++)
     }
   }
 } 

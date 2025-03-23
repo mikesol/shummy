@@ -1,19 +1,18 @@
-import { Template, Message, RuntimeOptions } from './types'
-import { Traversal } from '@shimmy/traversals'
+import { Template, RuntimeOptions } from './types'
 
-export function handleStaticTemplate(
-  template: Template,
-  options: RuntimeOptions,
+export function initializeTemplate(
+  template: Readonly<Template>,
+  options: Readonly<RuntimeOptions>,
   document: Document,
-  callCount: number
+  callCount: number,
 ): void {
   // Mount HTML
-  const app = document.querySelector('#app')
-  if (!app) throw new Error('No #app element found')
-  app.innerHTML = template.html
+  const reference = document.querySelector('#app')
+  if (!reference) throw new Error('No #app element found')
+  reference.innerHTML = template.html
 
   // Get element and listener paths
-  const { elementPaths, listenerPaths } = template.traversal(app)
+  const { elementPaths, listenerPaths } = template.traversal(reference, 'parent')
   const elements: Record<string, Element> = elementPaths
 
   // Create listener paths

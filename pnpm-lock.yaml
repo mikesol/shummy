@@ -106,6 +106,10 @@ importers:
         version: 1.6.1(@types/node@20.17.25)(happy-dom@13.10.1)
 
   packages/traversals:
+    dependencies:
+      immer:
+        specifier: ^10.0.3
+        version: 10.1.1
     devDependencies:
       '@types/node':
         specifier: ^20.11.19

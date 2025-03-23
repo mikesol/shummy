@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { Template, Message, RuntimeOptions } from '../types'
-import { dslTraverseHTML } from '@shimmy/traversals'
-import { handleStaticTemplate } from '../static'
+import { selectorTraverseHTML } from '@shimmy/traversals'
+import { initializeTemplate } from '../initialization'
 
 describe('Static Runtime', () => {
   let options: RuntimeOptions
@@ -34,10 +34,10 @@ describe('Static Runtime', () => {
         }
       }],
       stores: { count: 0 },
-      traversal: dslTraverseHTML(html)
+      traversal: selectorTraverseHTML(html)
     }
 
-    handleStaticTemplate(template, options, document, callCount)
+    initializeTemplate(template, options, document, callCount)
     
     // Check initial state
     expect(document.querySelector('#app')?.innerHTML).toBe(template.html)
@@ -77,10 +77,10 @@ describe('Static Runtime', () => {
         }
       }],
       stores: { count: 0 },
-      traversal: dslTraverseHTML(html)
+      traversal: selectorTraverseHTML(html)
     }
 
-    handleStaticTemplate(template, options, document, callCount)
+    initializeTemplate(template, options, document, callCount)
     expect(value).toBe(0)
     expect(inDomValue).toBe(false)
     expect(elementsValue.counter).toBeDefined()
@@ -139,10 +139,10 @@ describe('Static Runtime', () => {
         }
       }],
       stores: { count: 0, multiplier: 1 },
-      traversal: dslTraverseHTML(html)
+      traversal: selectorTraverseHTML(html)
     }
 
-    handleStaticTemplate(template, options, document, callCount)
+    initializeTemplate(template, options, document, callCount)
     expect(value).toBe(0)
     expect(inDomValue).toBe(false)
     expect(elementsValue.display).toBeDefined()
@@ -190,10 +190,10 @@ describe('Static Runtime', () => {
         }
       }],
       stores: { count: 0 },
-      traversal: dslTraverseHTML(html)
+      traversal: selectorTraverseHTML(html)
     }
 
-    handleStaticTemplate(template, domOptions, document, callCount)
+    initializeTemplate(template, domOptions, document, callCount)
     const button = document.querySelector('button') as HTMLButtonElement
     button?.click()
     expect(inDomValue).toBe(true)
@@ -236,10 +236,10 @@ describe('Static Runtime', () => {
         }
       }],
       stores: { menuVisible: false, isLoggedIn: false },
-      traversal: dslTraverseHTML(html)
+      traversal: selectorTraverseHTML(html)
     }
 
-    handleStaticTemplate(template, options, document, callCount)
+    initializeTemplate(template, options, document, callCount)
     expect(value).toBe(0)
     expect(document.querySelector('[data-s-id="highlight"]')?.textContent).toBe('Not logged in')
 

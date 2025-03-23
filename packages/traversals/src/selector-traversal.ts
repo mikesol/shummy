@@ -1,7 +1,11 @@
-import type { Traversal, Traversals } from './types'
+import type { Traversal, Traversals, Anchor } from './types'
 
-export function traverseHTML(html: string): Traversal {
-  return (element: Element) => {
+export function traverseHTML(_: string): Traversal {
+  return (e: Node, anchor: Anchor) => {
+    const element = anchor === 'parent' ? e : e.parentElement
+    if (!(element instanceof Element)) {
+      throw new Error('Anchor element not found')
+    }
     const elementPaths: Record<string, Element> = {}
     const listenerPaths: Element[] = []
 
