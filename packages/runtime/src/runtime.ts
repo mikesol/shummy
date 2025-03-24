@@ -70,7 +70,9 @@ export class ShimmyRuntime implements Runtime {
     stores: Record<string, any>,
     inDom: boolean
   ): void {
-    handler(elements, stores, inDom);
+    const [nextState, patches, inversePatches] = produceWithPatches(stores, (draft) => {
+      handler(elements, draft, inDom);
+    });
   }
 
   actualizeTemplate(templateId: string, reference: Reference): void {
