@@ -1,5 +1,5 @@
-import { Template, Message } from '@shimmy/runtime'
+import { Template, Message } from '@shimmy/runtime';
 
 export interface SPAServer {
-  sendTemplate: (template: Template) => void
-} 
+  sendTemplate: (template: Template) => void;
+}

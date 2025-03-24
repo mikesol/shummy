@@ -17,4 +17,4 @@
     "vite": "^5.1.4",
     "vite-plugin-shimmy-spa": "workspace:*"
   }
-} 
+}

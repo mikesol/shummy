@@ -5,7 +5,7 @@ This package provides utilities for traversing HTML and extracting information a
 ## Usage
 
 ```typescript
-import { traverseHTML } from '@shimmy/traversals'
+import { traverseHTML } from '@shimmy/traversals';
 
 const html = `
   <div>
@@ -13,10 +13,10 @@ const html = `
     <button data-s-listener="click:increment">Click me</button>
     <shimmy store="user" template="name" path="display" as="format" />
   </div>
-`
+`;
 
-const traversal = traverseHTML(html)
-const result = traversal(rootElement, position)
+const traversal = traverseHTML(html);
+const result = traversal(rootElement, position);
 ```
 
 ## Features
@@ -40,6 +40,7 @@ Elements with `data-s-listener` attributes are collected in `listenerPaths`:
 ### Children
 
 Children are specified using the `<shimmy>` element with the following attributes:
+
 - `store`: The store path (e.g. "user")
 - `template`: The template path (e.g. "name")
 - `path`: The path in the store (e.g. "display")
@@ -50,6 +51,7 @@ Children are specified using the `<shimmy>` element with the following attribute
 ```
 
 Children can be placed anywhere in the DOM and will be processed in order. They can have different reference types:
+
 - `parent`: When it's the last child in its container
 - `node-neighbor`: When it has a non-child sibling
-- `child-neighbor`: When it has another child as its next sibling 
+- `child-neighbor`: When it has another child as its next sibling

@@ -10,11 +10,13 @@ This is a basic example of using the Shimmy framework. It demonstrates:
 ## Getting Started
 
 1. Install dependencies:
+
 ```bash
 pnpm install
 ```
 
 2. Start the development server:
+
 ```bash
 pnpm dev
 ```
@@ -34,4 +36,4 @@ basic/
   ├── package.json       # Dependencies and scripts
   ├── tsconfig.json      # TypeScript configuration
   └── vite.config.ts     # Vite configuration
-``` 
+```

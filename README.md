@@ -21,6 +21,7 @@ myproject/
 At a minimum, a Shimmy project has one `template.html`, and optionally a `logic.js` and `store.js`. Here's a simple counter:
 
 **template.html**
+
 ```html
 <html>
   <body>
@@ -32,28 +33,31 @@ At a minimum, a Shimmy project has one `template.html`, and optionally a `logic.
 ```
 
 **logic.js**
-```javascript
-import $ from 'jquery'
 
-export const increment = ({ root }, /* original event */) =>
-  root.count += 1
+```javascript
+import $ from 'jquery';
+
+export const increment = ({ root } /* original event */) => (root.count += 1);
 
 export default function ({ count }, { root }) {
-  $(count).text(root.count)
+  $(count).text(root.count);
 }
 ```
 
 **store.js**
+
 ```javascript
 export default {
-  count: 0
+  count: 0,
 };
 ```
 
 Then run:
+
 ```bash
 shimmy dev
 ```
+
 And go to town!
 
 > Note: All `$(id).is(...)` bindings are re-evaluated on any update to the referenced store(s). Shimmy does not track dependencies automatically—re-evaluation happens by convention.
@@ -83,6 +87,7 @@ Like Vike or Next.js, Shimmy uses file-based routing:
 - Terminal routes don't need the `_` folder
 
 This project serves:
+
 - `/`
 - `/login`
 - `/about`
@@ -130,32 +135,32 @@ Just stuff you want to store. Always an object!
 
 ```javascript
 export default {
-  count: 0
-}
+  count: 0,
+};
 ```
 
 You can also export multiple named stores from a single file:
 
 ```javascript
-export const userStore = { name: '', email: '' }
-export const statusStore = { status: '', lastUpdated: '' }
+export const userStore = { name: '', email: '' };
+export const statusStore = { status: '', lastUpdated: '' };
 ```
 
 Handlers for each store must be exported in an array:
 
 ```javascript
-import $ from 'jquery'
+import $ from 'jquery';
 
 export default [
   function ({ userName, userEmail }, { user }) {
-    $(userName).text(user.name)
-    $(userEmail).text(user.email)
+    $(userName).text(user.name);
+    $(userEmail).text(user.email);
   },
   function ({ appStatus, lastUpdated }, { status }) {
-    $(appStatus).text(status.status)
-    $(lastUpdated).text(status.lastUpdated)
-  }
-]
+    $(appStatus).text(status.status);
+    $(lastUpdated).text(status.lastUpdated);
+  },
+];
 ```
 
 Shimmy tracks the stores used by each handler and only calls it if the store is updated.
@@ -167,14 +172,11 @@ Shimmy tracks the stores used by each handler and only calls it if the store is 
 Use brackets to embed components:
 
 ```html
-<div>
-  {left-panel}
-  {center-panel}
-  {right-panel}
-</div>
+<div>{left-panel} {center-panel} {right-panel}</div>
 ```
 
 Structure:
+
 ```
 /root
   _/
@@ -227,7 +229,8 @@ You can refer to any store in outer scope by name. Here's an example with local 
     store.js
 ```
 
-**root/_/template.html**
+**root/\_/template.html**
+
 ```html
 <html>
   <body>
@@ -244,23 +247,26 @@ You can refer to any store in outer scope by name. Here's an example with local 
 </html>
 ```
 
-**root/_/logic.js**
+**root/\_/logic.js**
+
 ```javascript
-import $ from 'jquery'
+import $ from 'jquery';
 
 export default function ({ globalCount }, { root }) {
-  $(globalCount).text(root.globalCount)
+  $(globalCount).text(root.globalCount);
 }
 ```
 
-**root/_/store.js**
+**root/\_/store.js**
+
 ```javascript
 export default {
-  globalCount: 0
-}
+  globalCount: 0,
+};
 ```
 
 **components/counter/template.html**
+
 ```html
 <div>
   <p>Local Count: <span data-s-id="localCount"></span></p>
@@ -269,24 +275,26 @@ export default {
 ```
 
 **components/counter/logic.js**
+
 ```javascript
-import $ from 'jquery'
+import $ from 'jquery';
 
 export const incrementLocal = ({ local, root }) => {
-  local.localCount += 1
-  root.globalCount += 1
-}
+  local.localCount += 1;
+  root.globalCount += 1;
+};
 
 export default function ({ localCount }, { local }) {
-  $(localCount).text(local.localCount)
+  $(localCount).text(local.localCount);
 }
 ```
 
 **components/counter/store.js**
+
 ```javascript
 export default {
-  localCount: 0
-}
+  localCount: 0,
+};
 ```
 
 ---
@@ -330,41 +338,43 @@ This says: use `friend-presence` to render each item in `root.friends`, passing 
     logic.js
 ```
 
-**/root/_/template.html**
+**/root/\_/template.html**
+
 ```html
 <html>
   <body>
     <h1>Friends Online</h1>
     <button data-s-listen="click:addRandomFriend">Add Random Friend</button>
-    <div>
-      {root.friends:friend-presence:friend}
-    </div>
+    <div>{root.friends:friend-presence:friend}</div>
   </body>
 </html>
 ```
 
-**/root/_/logic.js**
+**/root/\_/logic.js**
+
 ```javascript
-import { faker } from '@faker-js/faker'
-import { nanoid } from 'nanoid'
+import { faker } from '@faker-js/faker';
+import { nanoid } from 'nanoid';
 
 export const addRandomFriend = ({ root }) => {
   root.friends.push({
     id: nanoid(),
     name: faker.person.fullName(),
-    online: Math.random() > 0.5
-  })
-}
+    online: Math.random() > 0.5,
+  });
+};
 ```
 
-**/root/_/store.js**
+**/root/\_/store.js**
+
 ```javascript
 export default {
-  friends: []
-}
+  friends: [],
+};
 ```
 
 **/components/friend-presence/template.html**
+
 ```html
 <div class="friend">
   <p>
@@ -375,12 +385,13 @@ export default {
 ```
 
 **/components/friend-presence/logic.js**
+
 ```javascript
-import $ from 'jquery'
+import $ from 'jquery';
 
 export default function ({ name, status }, { friend }) {
-  $(name).text(friend.name)
-  $(status).text(friend.online ? '🟢 Online' : '🔴 Offline')
+  $(name).text(friend.name);
+  $(status).text(friend.online ? '🟢 Online' : '🔴 Offline');
 }
 ```
 
@@ -403,11 +414,9 @@ Then your store will automatically have a `myVideo` key that points to the `HTML
 To embed this element in html, you can use `shimmy-sub`.
 
 ```html
-<shimmy-sub id="video-sub" name="myVideo">
-</shimmy-sub>
+<shimmy-sub id="video-sub" name="myVideo"> </shimmy-sub>
 ```
 
 In `logic.js`, you can call `$(videoSub).steal()` to beam the component to the `shimmy-sub` and `$(videoSub).relinquish()` to remove the component.
 
 If there are multiple `shimmy-sub` targets, `steal()` sends the component to all active subs, with the last one taking precedence.
-
