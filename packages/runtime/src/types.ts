@@ -1,4 +1,5 @@
 import { Traversal } from '@shimmy/traversals'
+import { Reference, Child } from 'packages/traversals/src/types'
 
 export type Store = Record<string, any>
 
@@ -8,7 +9,7 @@ export type Elements = Record<string, Element>
 
 export interface StoreListener {
   stores: Set<string>
-  handler: (elements: Elements, stores: Store, nCalled: number, inDom: boolean) => void
+  handler: (elements: Elements, stores: Store, inDom: boolean) => void
 }
 
 export interface DOMListener {
@@ -24,22 +25,31 @@ export interface DOMListenerConfig {
 export type DOMListeners = Record<string, DOMListenerConfig>
 
 export interface Template {
+  id: string
   html: string
+  traversal: Traversal
   domListeners: DOMListeners
   storeListeners: StoreListener[]
   stores: Store
-  traversal: Traversal
-}
-
-export interface Message {
-  type: 'template'
-  template: Template
 }
 
 export interface Runtime {
-  handleMessage(message: Message): void
+  registerTemplate(template: Template): void
+  actualizeTemplate(templateId: string, reference: Reference): void
 }
 
 export interface RuntimeOptions {
   inDom: boolean
+}
+
+
+export interface TemplateState {
+  leftmostNode: Node
+  children: Record<string, Child>
+}
+
+export interface RuntimeState {
+  templates: Record<string, Template>
+  actualizedTemplates: Record<string, TemplateState>  // Maps template IDs to their leftmost elements
+  stores: Record<string, object>     // Maps store namespaces to their values
 } 

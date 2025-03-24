@@ -1,39 +1,60 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { ShimmyRuntime } from '@shimmy/runtime'
 import { ShimmySPAServer } from '../server'
+import { Message } from '@shimmy/runtime'
+import { selectorTraverseHTML } from '@shimmy/traversals'
 
 describe('Counter Example', () => {
   let runtime: ShimmyRuntime
   let server: ShimmySPAServer
+  let reference: Element
 
   beforeEach(() => {
     // Set up DOM
     document.body.innerHTML = '<div id="app"></div>'
+    reference = document.querySelector('#app')!
     
     // Create runtime and server
-    runtime = new ShimmyRuntime()
-    server = new ShimmySPAServer()
+    runtime = new ShimmyRuntime({ inDom: false }, reference)
+    server = new ShimmySPAServer(reference)
     
     // Connect server to runtime
-    server.onMessage(message => runtime.handleMessage(message))
+    server.sendTemplate = (template) => {
+      const message: Message = {
+        type: 'template',
+        template
+      }
+      runtime.handleMessage(message)
+    }
   })
 
   it('should increment counter when button is clicked', async () => {
+    const html = `
+      <div>
+        <p>Count: <span data-s-id="count">0</span></p>
+        <button data-s-listener="click:increment">Increment</button>
+      </div>
+    `
+
     // Send initial template
     server.sendTemplate({
-      html: `
-        <div>
-          <p>Count: <span data-s-id="count">0</span></p>
-          <button data-s-onclick="increment">Increment</button>
-        </div>
-      `,
-      listeners: {
-        increment: () => {
-          const store = runtime.getStore()
-          runtime.setStore({ count: (store.count || 0) + 1 })
+      html,
+      domListeners: {
+        increment: {
+          handler: (stores) => {
+            stores.count = (stores.count || 0) + 1
+          },
+          stores: new Set(['count'])
         }
       },
-      store: { count: 0 }
+      storeListeners: [{
+        stores: new Set(['count']),
+        handler: (elements, stores) => {
+          elements.count.textContent = String(stores.count)
+        }
+      }],
+      stores: { count: 0 },
+      traversal: selectorTraverseHTML(html)
     })
 
     // Subscribe to count changes

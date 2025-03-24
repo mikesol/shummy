@@ -1,20 +1,15 @@
 import { SPAServer } from './types'
-import { Template, Message } from '@shimmy/runtime'
+import { Template } from '@shimmy/runtime'
 import { ShimmyRuntime } from '@shimmy/runtime'
 
 export class ShimmySPAServer implements SPAServer {
   private runtime: ShimmyRuntime
 
-  constructor() {
-    this.runtime = new ShimmyRuntime()
+  constructor(reference: Element) {
+    this.runtime = new ShimmyRuntime({ inDom: false }, reference)
   }
 
   sendTemplate(template: Template): void {
-    const message: Message = {
-      type: 'template',
-      template
-    }
-    this.runtime.handleMessage(message)
+    this.runtime.actualizeTempalte(template)
   }
-
 } 

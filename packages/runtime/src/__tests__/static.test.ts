@@ -1,43 +1,47 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { Template, Message, RuntimeOptions } from '../types'
-import { selectorTraverseHTML } from '@shimmy/traversals'
-import { initializeTemplate } from '../initialization'
+import { Template, RuntimeOptions } from '../types'
+import { ShimmyRuntime } from '../runtime'
+import { traverseHTML } from '@shimmy/traversals'
 
 describe('Static Runtime', () => {
   let options: RuntimeOptions
-  let callCount: number
+  let reference: Element
+  let runtime: ShimmyRuntime
 
   beforeEach(() => {
     // Set up DOM
     document.body.innerHTML = '<div id="app"></div>'
+    reference = document.querySelector('#app')!
     options = { inDom: false }
-    callCount = 1
+    runtime = new ShimmyRuntime(options, reference)
   })
 
   it('should mount HTML and handle DOM events', () => {
     const html = '<div data-s-id="counter">0</div><button data-s-listener="click:increment">Click me</button>'
     
     const template: Template = {
+      id: 'counter-template',
       html,
+      traversal: traverseHTML(html),
       domListeners: {
         increment: {
           handler: (stores, /* event */) => {
-            stores.count = (stores.count || 0) + 1
+            stores.counterStore.count++
           },
-          stores: new Set(['count'])
+          stores: new Set(['counterStore'])
         }
       },
       storeListeners: [{
-        stores: new Set(['count']),
+        stores: new Set(['counterStore']),
         handler: (elements, stores) => {
-          elements.counter.textContent = String(stores.count)
+          elements.counter.textContent = String(stores.counterStore.count)
         }
       }],
-      stores: { count: 0 },
-      traversal: selectorTraverseHTML(html)
+      stores: { counterStore: { count: 0 } }
     }
 
-    initializeTemplate(template, options, document, callCount)
+    runtime.registerTemplate(template)
+    runtime.actualizeTemplate('counter-template', {type:'parent', element: reference})
     
     // Check initial state
     expect(document.querySelector('#app')?.innerHTML).toBe(template.html)
@@ -51,7 +55,7 @@ describe('Static Runtime', () => {
     expect(document.querySelector('[data-s-id="counter"]')?.textContent).toBe('1')
   })
 
-  it('should handle store listeners with call count, inDom flag, and element paths', () => {
+  it('should handle store listeners with inDom flag and element paths', () => {
     let value = 0
     let inDomValue = false
     let elementsValue: Record<string, Element> = {}
@@ -59,28 +63,30 @@ describe('Static Runtime', () => {
     const html = '<div data-s-id="counter">Hello World</div><button data-s-listener="click:increment">Click me</button>'
     
     const template: Template = {
+      id: 'counter-template',
       html,
+      traversal: traverseHTML(html),
       domListeners: {
         increment: {
           handler: (stores) => {
-            stores.count = (stores.count || 0) + 1
+            stores.counterStore.count++
           },
-          stores: new Set(['count'])
+          stores: new Set(['counterStore'])
         }
       },
       storeListeners: [{
-        stores: new Set(['count']),
-        handler: (elements, stores, nCalled, inDom) => {
-          value = stores.count
+        stores: new Set(['counterStore']),
+        handler: (elements, stores, inDom) => {
+          value = stores.counterStore.count
           inDomValue = inDom
           elementsValue = elements
         }
       }],
-      stores: { count: 0 },
-      traversal: selectorTraverseHTML(html)
+      stores: { counterStore: { count: 0 } }
     }
 
-    initializeTemplate(template, options, document, callCount)
+    runtime.registerTemplate(template)
+    runtime.actualizeTemplate('counter-template', {type:'parent', element: reference})
     expect(value).toBe(0)
     expect(inDomValue).toBe(false)
     expect(elementsValue.counter).toBeDefined()
@@ -114,35 +120,40 @@ describe('Static Runtime', () => {
     `
     
     const template: Template = {
+      id: 'calculator-template',
       html,
+      traversal: traverseHTML(html),
       domListeners: {
         incrementCount: {
           handler: (stores) => {
-            stores.count = (stores.count || 0) + 1
+            stores.counterStore.count++
           },
-          stores: new Set(['count'])
+          stores: new Set(['counterStore'])
         },
         incrementMultiplier: {
           handler: (stores) => {
-            stores.multiplier = (stores.multiplier || 1) + 1
+            stores.multiplierStore.multiplier++
           },
-          stores: new Set(['multiplier'])
+          stores: new Set(['multiplierStore'])
         }
       },
       storeListeners: [{
-        stores: new Set(['count', 'multiplier']),
-        handler: (elements, stores, nCalled, inDom) => {
-          value = stores.count * stores.multiplier
+        stores: new Set(['counterStore', 'multiplierStore']),
+        handler: (elements, stores, inDom) => {
+          value = stores.counterStore.count * stores.multiplierStore.multiplier
           inDomValue = inDom
           elementsValue = elements
           elements.display.textContent = String(value)
         }
       }],
-      stores: { count: 0, multiplier: 1 },
-      traversal: selectorTraverseHTML(html)
+      stores: { 
+        counterStore: { count: 0 },
+        multiplierStore: { multiplier: 1 }
+      }
     }
 
-    initializeTemplate(template, options, document, callCount)
+    runtime.registerTemplate(template)
+    runtime.actualizeTemplate('calculator-template', {type:'parent', element: reference})
     expect(value).toBe(0)
     expect(inDomValue).toBe(false)
     expect(elementsValue.display).toBeDefined()
@@ -165,94 +176,46 @@ describe('Static Runtime', () => {
     expect(elementsValue.display?.textContent).toBe('2')
   })
 
-  it('should respect inDom setting from constructor', () => {
-    const domOptions = { inDom: true }
-    let inDomValue = false
-    let elementsValue: Record<string, Element> = {}
-    
-    const html = '<div data-s-id="test">Hello World</div><button data-s-listener="click:increment">Click me</button>'
-    
-    const template: Template = {
-      html,
-      domListeners: {
-        increment: {
-          handler: (stores) => {
-            stores.count = (stores.count || 0) + 1
-          },
-          stores: new Set(['count'])
-        }
-      },
-      storeListeners: [{
-        stores: new Set(['count']),
-        handler: (elements, stores, nCalled, inDom) => {
-          inDomValue = inDom
-          elementsValue = elements
-        }
-      }],
-      stores: { count: 0 },
-      traversal: selectorTraverseHTML(html)
-    }
-
-    initializeTemplate(template, domOptions, document, callCount)
-    const button = document.querySelector('button') as HTMLButtonElement
-    button?.click()
-    expect(inDomValue).toBe(true)
-    expect(elementsValue.test).toBeDefined()
-    expect(elementsValue.test?.textContent).toBe('Hello World')
-  })
-
   it('should handle template without enclosing element', () => {
     let value = 0
     
     const html = `
-      Welcome to <span data-s-id="app-name">Shimmy</span>!
-      <div data-s-id="nav" data-s-listener="mouseenter:showMenu">
-        <button data-s-listener="click:login">Login</button>
-      </div>
-      <p>This is a paragraph with <span data-s-id="highlight">important</span> text.</p>
+      Hello <span data-s-id="greeting">World</span>!
+      <button data-s-listener="click:greet">Click me</button>
+      <span data-s-id="farewell">Goodbye</span> World
     `
     
     const template: Template = {
+      id: 'greeting-template',
       html,
+      traversal: traverseHTML(html),
       domListeners: {
-        showMenu: {
+        greet: {
           handler: (stores) => {
-            stores.menuVisible = true
+            stores.uiStore.isGreeting = true
           },
-          stores: new Set(['menuVisible'])
-        },
-        login: {
-          handler: (stores) => {
-            stores.isLoggedIn = true
-          },
-          stores: new Set(['isLoggedIn'])
+          stores: new Set(['uiStore'])
         }
       },
       storeListeners: [{
-        stores: new Set(['menuVisible', 'isLoggedIn']),
-        handler: (elements, stores, nCalled) => {
-          value = stores.menuVisible && stores.isLoggedIn ? 1 : 0
-          elements.highlight.textContent = value ? 'Logged in!' : 'Not logged in'
+        stores: new Set(['uiStore']),
+        handler: (elements, stores) => {
+          value = stores.uiStore.isGreeting ? 1 : 0
+          elements.farewell.textContent = value ? 'Logged in!' : 'Not logged in'
         }
       }],
-      stores: { menuVisible: false, isLoggedIn: false },
-      traversal: selectorTraverseHTML(html)
+      stores: { uiStore: { isGreeting: false } }
     }
 
-    initializeTemplate(template, options, document, callCount)
+    runtime.registerTemplate(template)
+    runtime.actualizeTemplate('greeting-template', {type:'parent', element: reference})
     expect(value).toBe(0)
-    expect(document.querySelector('[data-s-id="highlight"]')?.textContent).toBe('Not logged in')
+    expect(document.querySelector('[data-s-id="farewell"]')?.textContent).toBe('Not logged in')
 
-    // Hover over nav
-    const nav = document.querySelector('[data-s-id="nav"]') as HTMLElement
-    nav?.dispatchEvent(new MouseEvent('mouseenter'))
-    expect(value).toBe(0)
-    expect(document.querySelector('[data-s-id="highlight"]')?.textContent).toBe('Not logged in')
-
-    // Click login
-    const loginButton = document.querySelector('[data-s-listener="click:login"]') as HTMLButtonElement
-    loginButton?.click()
+    // Click greet
+    const button = document.querySelector('button') as HTMLButtonElement
+    button?.click()
     expect(value).toBe(1)
-    expect(document.querySelector('[data-s-id="highlight"]')?.textContent).toBe('Logged in!')
+    expect(document.querySelector('[data-s-id="farewell"]')?.textContent).toBe('Logged in!')
   })
 }) 

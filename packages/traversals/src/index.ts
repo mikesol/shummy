@@ -1,2 +1,2 @@
-export { traverseHTML as selectorTraverseHTML } from './selector-traversal'
-export type { Traversal, Traversals } from './types' 
+export { traverseHTML } from './traverse'
+export type { Traversal, Traversals, Position, Reference, ParentReference, NodeNeighborReference, ChildNeighborReference, Child } from './types' 

@@ -126,7 +126,7 @@ export default function (elements, stores, updateCount, inDom) {
 
 ### `store.js`
 
-Just stuff you want to store.
+Just stuff you want to store. Always an object!
 
 ```javascript
 export default {
@@ -308,7 +308,7 @@ In a template:
 
 ```html
 <div>
-  {root.friends:friend-presence:friend}
+  <shimmy store="root" path="friends" template="friend-presence" as="friend></shimmy>
 </div>
 ```
 
