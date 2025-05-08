@@ -312,7 +312,7 @@ it<TraversalContext>('kitchen sink', ctx => {
 
 it<TraversalContext>('should handle child that needs a parent', ctx => {
   const html = `
-      <div><shimmy store="foo" template="baz" path="raz" as="bar" /></div>
+      <div><shimmy store="foo" template="baz" key="raz"></shimmy</div>
     `;
 
   const node = insertHtml(html, ctx.parent, ctx.referenceIndex);
@@ -323,10 +323,9 @@ it<TraversalContext>('should handle child that needs a parent', ctx => {
   const child = traversals.children['baz'];
 
   // Test all fields
-  expect(child.storePath).toBe('foo');
-  expect(child.pathPath).toBe('raz');
-  expect(child.templatePath).toBe('baz');
-  expect(child.controllerName).toBe('bar');
+  expect(child.store).toBe('foo');
+  expect(child.key).toBe('raz');
+  expect(child.template).toBe('baz');
   expect(child.reference).toEqual({
     type: 'parent',
     element: expect.any(HTMLDivElement),
@@ -335,7 +334,7 @@ it<TraversalContext>('should handle child that needs a parent', ctx => {
 
 it<TraversalContext>('should handle child that needs a node neighbor', ctx => {
   const html = `
-      <div><shimmy store="foo" template="baz" path="raz" as="bar"></shimmy>   </div>
+      <div><shimmy store="foo" template="baz" key="raz"></shimmy>   </div>
     `;
 
   const node = insertHtml(html, ctx.parent, ctx.referenceIndex);
@@ -346,10 +345,9 @@ it<TraversalContext>('should handle child that needs a node neighbor', ctx => {
   const child = traversals.children['baz'];
 
   // Test all fields
-  expect(child.storePath).toBe('foo');
-  expect(child.pathPath).toBe('raz');
-  expect(child.templatePath).toBe('baz');
-  expect(child.controllerName).toBe('bar');
+  expect(child.store).toBe('foo');
+  expect(child.key).toBe('raz');
+  expect(child.template).toBe('baz');
   expect(child.reference).toEqual({
     type: 'node-neighbor',
     element: expect.any(Text),
@@ -359,7 +357,7 @@ it<TraversalContext>('should handle child that needs a node neighbor', ctx => {
 it<TraversalContext>('should handle child with element to its right', ctx => {
   const html = `
       <div>
-        <shimmy store="foo" template="bar" path="baz" as="raz"></shimmy><span data-s-id="prefix">Hello</span>
+        <shimmy store="foo" template="bar" key="baz"></shimmy><span data-s-id="prefix">Hello</span>
       </div>
     `;
 
@@ -373,9 +371,9 @@ it<TraversalContext>('should handle child with element to its right', ctx => {
   // Test child
   expect(Object.keys(traversals.children)).toHaveLength(1);
   const child = traversals.children['bar'];
-  expect(child.storePath).toBe('foo');
-  expect(child.templatePath).toBe('bar');
-  expect(child.controllerName).toBe('raz');
+  expect(child.store).toBe('foo');
+  expect(child.template).toBe('bar');
+  expect(child.key).toBe('baz');
   expect(child.reference).toEqual({
     type: 'node-neighbor',
     element: expect.any(HTMLSpanElement),
@@ -384,7 +382,7 @@ it<TraversalContext>('should handle child with element to its right', ctx => {
 
 it<TraversalContext>('should handle multiple children in sequence', ctx => {
   const html = `
-      <div><shimmy store="foo" template="bar" path="baz" as="raz"></shimmy><shimmy store="zfoo" template="zbar" path="zbaz" as="zraz"></shimmy></div>
+      <div><shimmy store="foo" template="bar" key="baz"></shimmy><shimmy store="zfoo" template="zbar" key="zbaz"></shimmy></div>
     `;
 
   const node = insertHtml(html, ctx.parent, ctx.referenceIndex);
@@ -394,19 +392,19 @@ it<TraversalContext>('should handle multiple children in sequence', ctx => {
   expect(Object.keys(traversals.children)).toHaveLength(2);
 
   const firstChild = traversals.children['bar'];
-  expect(firstChild.storePath).toBe('foo');
-  expect(firstChild.templatePath).toBe('bar');
-  expect(firstChild.controllerName).toBe('raz');
+  expect(firstChild.store).toBe('foo');
+  expect(firstChild.template).toBe('bar');
+  expect(firstChild.key).toBe('baz');
   expect(firstChild.reference).toEqual({
-    type: 'child-neighbor',
+    type: 'region-neighbor',
     leftmostNode: null,
     element: expect.any(Object),
   });
 
   const secondChild = traversals.children['zbar'];
-  expect(secondChild.storePath).toBe('zfoo');
-  expect(secondChild.templatePath).toBe('zbar');
-  expect(secondChild.controllerName).toBe('zraz');
+  expect(secondChild.store).toBe('zfoo');
+  expect(secondChild.template).toBe('zbar');
+  expect(secondChild.key).toBe('zbaz');
   expect(secondChild.reference).toEqual({
     type: 'parent',
     element: expect.any(HTMLDivElement),
@@ -417,14 +415,14 @@ it<TraversalContext>('should handle complex nested structure with multiple child
   const html = `
       <div>
         <div data-s-id="header">
-          Welcome <shimmy store="user" template="name" path="display" as="format"></shimmy></div>
+          Welcome <shimmy store="user" template="name" key="display"></shimmy></div>
         <div>
-          <p>Your balance is <shimmy store="user" template="balance" path="format" as="format"></shimmy></p>
-          <p>Last updated: <shimmy store="user" template="lastUpdate" path="format" as="format"></shimmy></p>
+          <p>Your balance is <shimmy store="user" template="balance" key="format"></shimmy></p>
+          <p>Last updated: <shimmy store="user" template="lastUpdate" key="format"></shimmy></p>
         </div>
         <div data-s-id="footer">
           <p>Thanks for visiting!</p>
-          <p>Please <shimmy store="user" template="action" path="handle" as="handle"></shimmy> to continue</p>
+          <p>Please <shimmy store="user" template="action" key="handle"></shimmy> to continue</p>
         </div>
       </div>
     `;
@@ -440,36 +438,32 @@ it<TraversalContext>('should handle complex nested structure with multiple child
   expect(Object.keys(traversals.children)).toHaveLength(4);
 
   const nameChild = traversals.children['name'];
-  expect(nameChild.storePath).toBe('user');
-  expect(nameChild.templatePath).toBe('name');
-  expect(nameChild.controllerName).toBe('format');
+  expect(nameChild.store).toBe('user');
+  expect(nameChild.template).toBe('name');
   expect(nameChild.reference).toEqual({
     type: 'parent',
     element: expect.any(HTMLDivElement),
   });
 
   const balanceChild = traversals.children['balance'];
-  expect(balanceChild.storePath).toBe('user');
-  expect(balanceChild.templatePath).toBe('balance');
-  expect(balanceChild.controllerName).toBe('format');
+  expect(balanceChild.store).toBe('user');
+  expect(balanceChild.template).toBe('balance');
   expect(balanceChild.reference).toEqual({
     type: 'parent',
     element: expect.any(HTMLParagraphElement),
   });
 
   const updateChild = traversals.children['lastUpdate'];
-  expect(updateChild.storePath).toBe('user');
-  expect(updateChild.templatePath).toBe('lastUpdate');
-  expect(updateChild.controllerName).toBe('format');
+  expect(updateChild.store).toBe('user');
+  expect(updateChild.template).toBe('lastUpdate');
   expect(updateChild.reference).toEqual({
     type: 'parent',
     element: expect.any(HTMLParagraphElement),
   });
 
   const actionChild = traversals.children['action'];
-  expect(actionChild.storePath).toBe('user');
-  expect(actionChild.templatePath).toBe('action');
-  expect(actionChild.controllerName).toBe('handle');
+  expect(actionChild.store).toBe('user');
+  expect(actionChild.template).toBe('action');
   expect(actionChild.reference).toEqual({
     type: 'node-neighbor',
     element: expect.any(Text),

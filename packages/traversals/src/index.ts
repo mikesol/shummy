@@ -7,5 +7,5 @@ export type {
   ParentReference,
   NodeNeighborReference,
   ChildNeighborReference,
-  Child,
+  RegionInfo as Child,
 } from './types';
